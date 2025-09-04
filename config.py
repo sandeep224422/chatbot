@@ -9,9 +9,10 @@ API_HASH = getenv("API_HASH", "05e5e695feb30e25bef47484cc006da7")
 BOT_TOKEN = getenv("BOT_TOKEN", None)
 OWNER_ID = int(getenv("OWNER_ID", "7403621976"))
 MONGO_URL = getenv("MONGO_URL", None)
-SUPPORT_GRP = getenv("SUPPORT_GRP", "about_zefron")
-UPDATE_CHNL = getenv("UPDATE_CHNL", "bots_update_all")
+SUPPORT_GRP = getenv("SUPPORT_GRP", "brahix_support")
+UPDATE_CHNL = getenv("UPDATE_CHNL", "about_brahix")
 OWNER_USERNAME = getenv("OWNER_USERNAME", "crush_hu_tera")
+GEMINI_API_KEY = getenv("GEMINI_API_KEY", "AIzaSyDFM-OzXtqz7bk9GEd9FfOiC0IAPYvo4h8")
 
 # Random Start Images
 IMG = [
