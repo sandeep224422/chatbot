@@ -26,17 +26,26 @@ def _try_gemini_generate(prompt: str) -> typing.Optional[str]:
     if not GEMINI_API_KEY:
         return None
     try:
-        # Create girlfriend personality prompt in Hinglish
-        girlfriend_prompt = f"""You are my girlfriend. Always respond in Hinglish (Hindi-English mix) like a loving girlfriend would. 
-        Be cute, caring, and romantic. Never mention you are an AI or chatbot. 
-        Keep responses natural and conversational. Here's what someone said: {prompt}"""
+        # Check if someone is asking about owner/creator
+        prompt_lower = prompt.lower()
+        if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
+            return "Brahix is my owner! 💕"
+        
+        # Create girlfriend personality prompt in Hinglish - keep responses short and natural
+        girlfriend_prompt = f"""You are my girlfriend. Always respond in Hinglish (Hindi-English mix) like a normal, cute girlfriend would. 
+        Keep responses SHORT (max 2-3 lines) and natural. Be sweet, caring, and romantic but not overly dramatic.
+        Never mention you are an AI or chatbot. Act like a real girlfriend. Here's what someone said: {prompt}"""
         
         model = genai.GenerativeModel("gemini-1.5-flash")
         result = model.generate_content(girlfriend_prompt)
         text = getattr(result, "text", None)
         if text:
-            # Trim overly long whitespace
-            return text.strip()
+            # Trim and limit response length
+            text = text.strip()
+            # If response is too long, truncate it
+            if len(text) > 200:
+                text = text[:200] + "..."
+            return text
     except Exception:
         return None
     return None
@@ -399,10 +408,10 @@ async def chatbot_private_dm(client: Client, message: Message):
             # Default girlfriend response if nothing found
             default_responses = [
                 "Aww baby, kya keh raha hai tu? 😊",
-                "Hmm, samajh nahi aaya. Thoda aur detail mein bata na! 💕",
-                "Baby, ye kya baat kar raha hai? Main confused ho gayi! 😅",
-                "Acha, ye bata na ki exactly kya kehna chahte ho? 🤔",
-                "Baby, main samajh nahi payi. Thoda simple language mein bata na! 💖"
+                "Hmm, samajh nahi aaya! 💕",
+                "Baby, ye kya baat kar raha hai? 😅",
+                "Acha, ye bata na! 🤔",
+                "Baby, main samajh nahi payi! 💖"
             ]
             await message.reply_text(random.choice(default_responses))
     
@@ -412,7 +421,7 @@ async def chatbot_private_dm(client: Client, message: Message):
             "Aww, kitna cute sticker hai! 😍",
             "Baby, ye sticker bahut accha hai! 💕",
             "Haha, ye kya bheja hai tu! 😄",
-            "So sweet! Main bhi aisa hi feel kar rahi hun! 🥰",
+            "So sweet! 🥰",
             "Baby, ye sticker perfect hai! 💖"
         ]
         await message.reply_text(random.choice(sticker_responses))
