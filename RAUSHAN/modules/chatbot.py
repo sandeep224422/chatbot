@@ -26,8 +26,13 @@ def _try_gemini_generate(prompt: str) -> typing.Optional[str]:
     if not GEMINI_API_KEY:
         return None
     try:
+        # Create girlfriend personality prompt in Hinglish
+        girlfriend_prompt = f"""You are my girlfriend. Always respond in Hinglish (Hindi-English mix) like a loving girlfriend would. 
+        Be cute, caring, and romantic. Never mention you are an AI or chatbot. 
+        Keep responses natural and conversational. Here's what someone said: {prompt}"""
+        
         model = genai.GenerativeModel("gemini-1.5-flash")
-        result = model.generate_content(prompt)
+        result = model.generate_content(girlfriend_prompt)
         text = getattr(result, "text", None)
         if text:
             # Trim overly long whitespace
@@ -260,6 +265,13 @@ async def chatbot_pvt(client: Client, message: Message):
     chatai = chatdb["Word"]["WordDb"]
     if not message.reply_to_message:
         await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+        # Try Gemini first for private chats
+        if message.text:
+            ai_reply = _try_gemini_generate(message.text)
+            if ai_reply:
+                await message.reply_text(ai_reply)
+                return
+        # Fallback to DB
         K = []
         is_chat = chatai.find({"word": message.text})
         for x in is_chat:
@@ -274,6 +286,13 @@ async def chatbot_pvt(client: Client, message: Message):
     if message.reply_to_message:
         if message.reply_to_message.from_user.id == client.id:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+            # Try Gemini first when user replies to bot in private
+            if message.text:
+                ai_reply = _try_gemini_generate(message.text)
+                if ai_reply:
+                    await message.reply_text(ai_reply)
+                    return
+            # Fallback to DB
             K = []
             is_chat = chatai.find({"word": message.text})
             for x in is_chat:
@@ -323,7 +342,7 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
         if message.reply_to_message.from_user.id == client.id:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
             K = []
-            is_chat = chatai.find({"word": message.sticker.file_unique_id})
+            is_chat = chatai.find({"word": message.text})
             for x in is_chat:
                 K.append(x["text"])
             hey = random.choice(K)
@@ -331,5 +350,69 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
             Yo = is_text["check"]
             if Yo == "text":
                 await message.reply_text(f"{hey}")
-            if not Yo == "text":
+            if not Yo == "sticker":
                 await message.reply_sticker(f"{hey}")
+
+
+@AMBOT.on_message(
+    (filters.text | filters.sticker) & filters.private & ~filters.bot,
+)
+async def chatbot_private_dm(client: Client, message: Message):
+    """Handle private DM chats with girlfriend personality"""
+    try:
+        if (
+            message.text.startswith("!")
+            or message.text.startswith("/")
+            or message.text.startswith("?")
+            or message.text.startswith("@")
+            or message.text.startswith("#")
+        ):
+            return
+    except Exception:
+        pass
+    
+    await client.send_chat_action(message.chat.id, ChatAction.TYPING)
+    
+    if message.text:
+        # Always try Gemini first for private DMs
+        ai_reply = _try_gemini_generate(message.text)
+        if ai_reply:
+            await message.reply_text(ai_reply)
+            return
+        
+        # Fallback to DB if Gemini fails
+        chatdb = MongoClient(MONGO_URL)
+        chatai = chatdb["Word"]["WordDb"]
+        K = []
+        is_chat = chatai.find({"word": message.text})
+        for x in is_chat:
+            K.append(x["text"])
+        if K:
+            hey = random.choice(K)
+            is_text = chatai.find_one({"text": hey})
+            Yo = is_text["check"]
+            if Yo == "sticker":
+                await message.reply_sticker(f"{hey}")
+            else:
+                await message.reply_text(f"{hey}")
+        else:
+            # Default girlfriend response if nothing found
+            default_responses = [
+                "Aww baby, kya keh raha hai tu? 😊",
+                "Hmm, samajh nahi aaya. Thoda aur detail mein bata na! 💕",
+                "Baby, ye kya baat kar raha hai? Main confused ho gayi! 😅",
+                "Acha, ye bata na ki exactly kya kehna chahte ho? 🤔",
+                "Baby, main samajh nahi payi. Thoda simple language mein bata na! 💖"
+            ]
+            await message.reply_text(random.choice(default_responses))
+    
+    elif message.sticker:
+        # Handle sticker responses in DMs
+        sticker_responses = [
+            "Aww, kitna cute sticker hai! 😍",
+            "Baby, ye sticker bahut accha hai! 💕",
+            "Haha, ye kya bheja hai tu! 😄",
+            "So sweet! Main bhi aisa hi feel kar rahi hun! 🥰",
+            "Baby, ye sticker perfect hai! 💖"
+        ]
+        await message.reply_text(random.choice(sticker_responses))
