@@ -1,5 +1,5 @@
 # Don't remove This Line From Here.
-# Telegram :- @crush_hu_tera
+# Telegram :- @Brahix
 
 import random
 from datetime import datetime
@@ -30,7 +30,7 @@ async def ping(_, message: Message):
 
     ms = (datetime.now() - start).microseconds / 1000
     await loda.edit_text(
-        text=f"нєყ вαву!!\n{BOT_NAME} 𝚒ѕ al𝚒ve 🥀 αnd worĸɪng ғɪnє wɪтн ᴀ ᴘɪɴɢ oғ\n➥ `{ms}` ms\n\n<b> мα𝙳є ω𝚒тн ❣️ ву [𝗭𝗲‌𝗳𝗿𝗼‌𝗻 ‌🔥❰⎯꯭🎫ꭗ‌‌](https://t.me/{OWNER_USERNAME}) </b>",
+        text=f"нєყ вαву!!\n{BOT_NAME} 𝚒ѕ al𝚒ve 🥀 αnd worĸɪng ғɪnє wɪтн ᴀ ᴘɪɴɢ oғ\n➥ `{ms}` ms\n\n<b> мα𝙳є ω𝚒тн ❣️ ву [𝐁 𝐑 𝐀 𝐇 𝐈 𝐗  ‌🔥❰⎯꯭🎫ꭗ‌‌](https://t.me/{OWNER_USERNAME}) </b>",
         reply_markup=InlineKeyboardMarkup(PNG_BTN),
     )
     if message.chat.type == ChatType.PRIVATE:

@@ -11,7 +11,7 @@ OWNER_ID = int(getenv("OWNER_ID", "7403621976"))
 MONGO_URL = getenv("MONGO_URL", None)
 SUPPORT_GRP = getenv("SUPPORT_GRP", "brahix_support")
 UPDATE_CHNL = getenv("UPDATE_CHNL", "about_brahix")
-OWNER_USERNAME = getenv("OWNER_USERNAME", "crush_hu_tera")
+OWNER_USERNAME = getenv("OWNER_USERNAME", "Brahix")
 GEMINI_API_KEY = getenv("GEMINI_API_KEY", "AIzaSyDFM-OzXtqz7bk9GEd9FfOiC0IAPYvo4h8")
 
 # Random Start Images
