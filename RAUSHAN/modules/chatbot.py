@@ -1,7 +1,7 @@
 import random
 import typing
-
-import openai
+import requests
+import json
 
 from pymongo import MongoClient
 from pyrogram import Client, filters
@@ -13,16 +13,11 @@ from RAUSHAN import AMBOT
 from RAUSHAN.modules.helpers import CHATBOT_ON, is_admins
 
 
-# Configure OpenAI once at import time if key available
-if OPENAI_API_KEY:
-    try:
-        openai.api_key = OPENAI_API_KEY
-    except Exception:
-        pass
+# OpenRouter API key is configured in the function when needed
 
 
 def _try_openai_generate(prompt: str) -> typing.Optional[str]:
-    """Return an OpenAI response text or None on any failure/empty output."""
+    """Return an OpenRouter response text or None on any failure/empty output."""
     if not OPENAI_API_KEY:
         return None
     try:
@@ -37,23 +32,42 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         Act like a real person - never mention you are an AI, chatbot, or artificial. You are a real cute girl.
         Support all languages but always reply in Hinglish. Here's what someone said: {prompt}"""
         
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a real cute girl who always responds in Hinglish."},
-                {"role": "user", "content": cute_girl_prompt}
-            ],
-            max_tokens=100,
-            temperature=0.7
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            data=json.dumps({
+                "model": "openai/gpt-3.5-turbo",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a real cute girl who always responds in Hinglish."
+                    },
+                    {
+                        "role": "user",
+                        "content": cute_girl_prompt
+                    }
+                ],
+                "max_tokens": 100,
+                "temperature": 0.7
+            })
         )
         
-        text = response.choices[0].message.content.strip()
-        if text:
-            # If response is too long, truncate it
-            if len(text) > 200:
-                text = text[:200] + "..."
-            return text
-    except Exception:
+        if response.status_code == 200:
+            result = response.json()
+            text = result["choices"][0]["message"]["content"].strip()
+            if text:
+                # If response is too long, truncate it
+                if len(text) > 200:
+                    text = text[:200] + "..."
+                return text
+        else:
+            print(f"OpenRouter API Error: {response.status_code} - {response.text}")
+            return None
+    except Exception as e:
+        print(f"OpenRouter API Error: {e}")  # Debug print
         return None
     return None
 
