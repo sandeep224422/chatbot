@@ -16,6 +16,34 @@ from RAUSHAN.modules.helpers import CHATBOT_ON, is_admins
 # OpenRouter API key is configured in the function when needed
 
 
+def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
+    """Check if bot is mentioned by name or tagged in the message"""
+    if not message.text:
+        return False
+    
+    text = message.text.lower()
+    bot_username = client.me.username.lower() if client.me.username else ""
+    bot_first_name = client.me.first_name.lower() if client.me.first_name else ""
+    
+    # Check for bot username mention
+    if bot_username and f"@{bot_username}" in text:
+        return True
+    
+    # Check for bot first name mention (like "riya")
+    if bot_first_name and bot_first_name in text:
+        return True
+    
+    # Check for entities (mentions)
+    if message.entities:
+        for entity in message.entities:
+            if entity.type == "mention":
+                mentioned_text = text[entity.offset:entity.offset + entity.length]
+                if mentioned_text == f"@{bot_username}":
+                    return True
+    
+    return False
+
+
 def _try_openai_generate(prompt: str) -> typing.Optional[str]:
     """Return an OpenRouter response text or None on any failure/empty output."""
     if not OPENAI_API_KEY:
@@ -133,6 +161,11 @@ async def chatbot_text(client: Client, message: Message):
             return
     except Exception:
         pass
+    
+    # Only respond in group chats if bot is mentioned or tagged
+    if not is_bot_mentioned_or_tagged(message, client):
+        return
+    
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
 
@@ -236,6 +269,11 @@ async def chatbot_sticker(client: Client, message: Message):
             return
     except Exception:
         pass
+    
+    # Only respond in group chats if bot is mentioned or tagged
+    if not is_bot_mentioned_or_tagged(message, client):
+        return
+    
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
 
@@ -327,6 +365,11 @@ async def chatbot_pvt(client: Client, message: Message):
             return
     except Exception:
         pass
+    
+    # Only respond in group chats if bot is mentioned or tagged
+    if not is_bot_mentioned_or_tagged(message, client):
+        return
+    
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
     if not message.reply_to_message:
@@ -389,6 +432,11 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
             return
     except Exception:
         pass
+    
+    # Only respond in group chats if bot is mentioned or tagged
+    if not is_bot_mentioned_or_tagged(message, client):
+        return
+    
     chatdb = MongoClient(MONGO_URL)
     chatai = chatdb["Word"]["WordDb"]
     if not message.reply_to_message:
