@@ -31,13 +31,13 @@ def _try_gemini_generate(prompt: str) -> typing.Optional[str]:
         if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
             return "Brahix is my owner! 💕"
         
-        # Create girlfriend personality prompt in Hinglish - keep responses short and natural
-        girlfriend_prompt = f"""You are my girlfriend. Always respond in Hinglish (Hindi-English mix) like a normal, cute girlfriend would. 
-        Keep responses SHORT (max 2-3 lines) and natural. Be sweet, caring, and romantic but not overly dramatic.
-        Never mention you are an AI or chatbot. Act like a real girlfriend. Here's what someone said: {prompt}"""
+        # Create cute girl bestie personality prompt in Hinglish - keep responses short and natural
+        bestie_prompt = f"""You are a cute girl who acts like my bestie. Always respond in Hinglish (Hindi-English mix) like a fun, supportive girl best friend would. 
+        Keep responses SHORT (max 1-2 lines) and natural. Be sweet, caring, funny, and supportive like a girl bestie.
+        Act like a cute girl with bestie vibes - friendly, supportive, and fun. Never mention you are an AI or chatbot. Here's what someone said: {prompt}"""
         
         model = genai.GenerativeModel("gemini-1.5-flash")
-        result = model.generate_content(girlfriend_prompt)
+        result = model.generate_content(bestie_prompt)
         text = getattr(result, "text", None)
         if text:
             # Trim and limit response length
@@ -367,7 +367,7 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
     (filters.text | filters.sticker) & filters.private & ~filters.bot,
 )
 async def chatbot_private_dm(client: Client, message: Message):
-    """Handle private DM chats with girlfriend personality"""
+    """Handle private DM chats with cute girl bestie personality"""
     try:
         if (
             message.text.startswith("!")
@@ -405,13 +405,15 @@ async def chatbot_private_dm(client: Client, message: Message):
             else:
                 await message.reply_text(f"{hey}")
         else:
-            # Default girlfriend response if nothing found
+            # Default cute girl bestie response if nothing found
             default_responses = [
-                "Aww baby, kya keh raha hai tu? 😊",
-                "Hmm, samajh nahi aaya! 💕",
-                "Baby, ye kya baat kar raha hai? 😅",
-                "Acha, ye bata na! 🤔",
-                "Baby, main samajh nahi payi! 💖"
+                "Aww yaar, kya keh raha hai tu? 😊",
+                "Hmm, samajh nahi aaya! 🤔",
+                "Yaar, ye kya baat kar raha hai? 😅",
+                "Acha, ye bata na! 💕",
+                "Bestie, main samajh nahi payi! 😄",
+                "Haha, kya bol raha hai tu? 😆",
+                "Yaar, thoda clear bata na! 💖"
             ]
             await message.reply_text(random.choice(default_responses))
     
@@ -419,9 +421,11 @@ async def chatbot_private_dm(client: Client, message: Message):
         # Handle sticker responses in DMs
         sticker_responses = [
             "Aww, kitna cute sticker hai! 😍",
-            "Baby, ye sticker bahut accha hai! 💕",
+            "Yaar, ye sticker bahut accha hai! 💕",
             "Haha, ye kya bheja hai tu! 😄",
             "So sweet! 🥰",
-            "Baby, ye sticker perfect hai! 💖"
+            "Bestie, ye sticker perfect hai! 💖",
+            "Haha, so funny! 😆",
+            "Yaar, ye bahut cute hai! 💖"
         ]
         await message.reply_text(random.choice(sticker_responses))
