@@ -12,7 +12,7 @@ MONGO_URL = getenv("MONGO_URL", None)
 SUPPORT_GRP = getenv("SUPPORT_GRP", "brahix_support")
 UPDATE_CHNL = getenv("UPDATE_CHNL", "about_brahix")
 OWNER_USERNAME = getenv("OWNER_USERNAME", "Brahix")
-GEMINI_API_KEY = getenv("GEMINI_API_KEY", "AIzaSyA1tCqLt6V6pB3ocKxfnyY0mCTFB4djeMA")
+GEMINI_API_KEY = getenv("GEMINI_API_KEY", "AIzaSyDaZ7x3bIL4nzcFjGDVBGfesTH-ni4qfqw)
 
 # Random Start Images
 IMG = [
