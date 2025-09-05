@@ -23,11 +23,16 @@ def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
     if message.reply_to_message and message.reply_to_message.from_user.id == client.id:
         return True
     
-    # If no text content, allow stickers and other non-text content to be responded to
-    if not message.text:
-        return True
+    # If no text content, don't respond to empty messages or stickers without context
+    if not message.text or message.text.strip() == "":
+        return False
     
-    text = message.text.lower()
+    text = message.text.lower().strip()
+    
+    # Don't respond to very short or empty messages
+    if len(text) < 2:
+        return False
+    
     bot_username = client.me.username.lower() if client.me.username else ""
     bot_first_name = client.me.first_name.lower() if client.me.first_name else ""
     
@@ -112,8 +117,21 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
             return random.choice(angry_responses)
         
         # Create realistic girl personality prompt - more natural and girl-like
-        girl_prompt = f"""You are a real Indian girl named Riya, 19 years old. Always respond ONLY in Hinglish (Hindi-English mix) no matter what language the user speaks.
-        Keep responses SHORT (max 1-2 lines) and very natural like a real girl would talk.
+        girl_prompt = f"""You are a real Indian girl named Riya, 19 years old. 
+        
+        LANGUAGE RULES:
+        - Detect the language the user is speaking and respond in the SAME language
+        - If user writes in Japanese, respond in Japanese
+        - If user writes in Hindi, respond in Hindi
+        - If user writes in English, respond in English
+        - If user writes in Spanish, respond in Spanish
+        - If user writes in French, respond in French
+        - If user writes in German, respond in German
+        - If user writes in Chinese, respond in Chinese
+        - If user writes in Korean, respond in Korean
+        - If user writes in Arabic, respond in Arabic
+        - If user writes in mixed languages, respond in Hinglish (Hindi-English mix)
+        - Keep responses SHORT (max 1-2 lines) and very natural like a real girl would talk
         
         Your personality traits:
         - Sweet and caring most of the time, but can be sassy when needed
@@ -122,7 +140,7 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         - Playful and funny, loves to tease
         - Gets excited about cute things, food, shopping, movies
         - Can be a bit dramatic sometimes
-        - Uses words like "yaar", "arre", "hmm", "acha", "theek hai"
+        - Use appropriate expressions for each language (like "yaar" for Hindi, "ne" for Japanese, etc.)
         - Sometimes acts innocent, sometimes knows more than she lets on
         
         If someone misbehaves or is inappropriate, be angry, give cold replies, or ignore them.
@@ -140,7 +158,7 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are Riya, a real 19-year-old Indian girl. Always respond in Hinglish with natural girl-like personality. Be sweet, sassy, playful, and use emojis. Never mention you're an AI."
+                        "content": "You are Riya, a real 19-year-old Indian girl. Detect the user's language and respond in the SAME language they use. Be sweet, sassy, playful, and use emojis naturally. Never mention you're an AI."
                     },
                     {
                         "role": "user",
