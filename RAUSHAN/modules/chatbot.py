@@ -45,7 +45,7 @@ def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
         return True
     
     # Check for common bot names as fallback
-    common_bot_names = ["riya", "bot", "ai", "assistant"]
+    common_bot_names = ["riya"]
     for name in common_bot_names:
         if name in text:
             return True
