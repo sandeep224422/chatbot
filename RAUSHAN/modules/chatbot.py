@@ -1,29 +1,29 @@
 import random
 import typing
 
-import google.generativeai as genai
+import openai
 
 from pymongo import MongoClient
 from pyrogram import Client, filters
 from pyrogram.enums import ChatAction
 from pyrogram.types import InlineKeyboardMarkup, Message
 
-from config import MONGO_URL, GEMINI_API_KEY
+from config import MONGO_URL, OPENAI_API_KEY
 from RAUSHAN import AMBOT
 from RAUSHAN.modules.helpers import CHATBOT_ON, is_admins
 
 
-# Configure Gemini once at import time if key available
-if GEMINI_API_KEY:
+# Configure OpenAI once at import time if key available
+if OPENAI_API_KEY:
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
+        openai.api_key = OPENAI_API_KEY
     except Exception:
         pass
 
 
-def _try_gemini_generate(prompt: str) -> typing.Optional[str]:
-    """Return a Gemini response text or None on any failure/empty output."""
-    if not GEMINI_API_KEY:
+def _try_openai_generate(prompt: str) -> typing.Optional[str]:
+    """Return an OpenAI response text or None on any failure/empty output."""
+    if not OPENAI_API_KEY:
         return None
     try:
         # Check if someone is asking about owner/creator
@@ -37,12 +37,18 @@ def _try_gemini_generate(prompt: str) -> typing.Optional[str]:
         Act like a real person - never mention you are an AI, chatbot, or artificial. You are a real cute girl.
         Support all languages but always reply in Hinglish. Here's what someone said: {prompt}"""
         
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        result = model.generate_content(cute_girl_prompt)
-        text = getattr(result, "text", None)
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a real cute girl who always responds in Hinglish."},
+                {"role": "user", "content": cute_girl_prompt}
+            ],
+            max_tokens=100,
+            temperature=0.7
+        )
+        
+        text = response.choices[0].message.content.strip()
         if text:
-            # Trim and limit response length
-            text = text.strip()
             # If response is too long, truncate it
             if len(text) > 200:
                 text = text[:200] + "..."
@@ -86,9 +92,9 @@ async def chatbot_text(client: Client, message: Message):
         is_vick = vick.find_one({"chat_id": message.chat.id})
         if not is_vick:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            # Try Gemini first for text prompts
+            # Try OpenAI first for text prompts
             if message.text:
-                ai_reply = _try_gemini_generate(message.text)
+                ai_reply = _try_openai_generate(message.text)
                 if ai_reply:
                     await message.reply_text(ai_reply)
                     return
@@ -114,9 +120,9 @@ async def chatbot_text(client: Client, message: Message):
         if message.reply_to_message.from_user.id == client.id:
             if not is_vick:
                 await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-                # Try Gemini first when user replies to bot
+                # Try OpenAI first when user replies to bot
                 if message.text:
-                    ai_reply = _try_gemini_generate(message.text)
+                    ai_reply = _try_openai_generate(message.text)
                     if ai_reply:
                         await message.reply_text(ai_reply)
                         return
@@ -275,9 +281,9 @@ async def chatbot_pvt(client: Client, message: Message):
     chatai = chatdb["Word"]["WordDb"]
     if not message.reply_to_message:
         await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-        # Try Gemini first for private chats
+        # Try OpenAI first for private chats
         if message.text:
-            ai_reply = _try_gemini_generate(message.text)
+            ai_reply = _try_openai_generate(message.text)
             if ai_reply:
                 await message.reply_text(ai_reply)
                 return
@@ -296,9 +302,9 @@ async def chatbot_pvt(client: Client, message: Message):
     if message.reply_to_message:
         if message.reply_to_message.from_user.id == client.id:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            # Try Gemini first when user replies to bot in private
+            # Try OpenAI first when user replies to bot in private
             if message.text:
-                ai_reply = _try_gemini_generate(message.text)
+                ai_reply = _try_openai_generate(message.text)
                 if ai_reply:
                     await message.reply_text(ai_reply)
                     return
@@ -384,13 +390,13 @@ async def chatbot_private_dm(client: Client, message: Message):
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
     
     if message.text:
-        # Always try Gemini first for private DMs
-        ai_reply = _try_gemini_generate(message.text)
+        # Always try OpenAI first for private DMs
+        ai_reply = _try_openai_generate(message.text)
         if ai_reply:
             await message.reply_text(ai_reply)
             return
         
-        # Fallback to DB if Gemini fails
+        # Fallback to DB if OpenAI fails
         chatdb = MongoClient(MONGO_URL)
         chatai = chatdb["Word"]["WordDb"]
         K = []
