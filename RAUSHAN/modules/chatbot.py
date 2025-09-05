@@ -17,9 +17,15 @@ from RAUSHAN.modules.helpers import CHATBOT_ON, is_admins
 
 
 def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
-    """Check if bot is mentioned by name or tagged in the message"""
+    """Check if bot is mentioned by name, tagged, or if user is replying to bot's message"""
+    
+    # If user is replying to bot's message, always respond
+    if message.reply_to_message and message.reply_to_message.from_user.id == client.id:
+        return True
+    
+    # If no text content, allow stickers and other non-text content to be responded to
     if not message.text:
-        return False
+        return True
     
     text = message.text.lower()
     bot_username = client.me.username.lower() if client.me.username else ""
@@ -32,6 +38,12 @@ def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
     # Check for bot first name mention (like "riya")
     if bot_first_name and bot_first_name in text:
         return True
+    
+    # Check for common bot names as fallback
+    common_bot_names = ["riya", "bot", "ai", "assistant"]
+    for name in common_bot_names:
+        if name in text:
+            return True
     
     # Check for entities (mentions)
     if message.entities:
