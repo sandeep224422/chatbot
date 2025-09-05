@@ -97,16 +97,37 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
                 "Ye sab mat kar! 🙅‍♀️",
                 "Yaar, thoda mature ho! 😏",
                 "Main upset ho gayi! 😔",
-                "Acha, enough! 😤"
+                "Acha, enough! 😤",
+                "Omg, ye kya hai? 😳",
+                "Yaar, main shocked hun! 😱",
+                "This is so wrong! 😡",
+                "Yaar, main disappointed hun! 😔",
+                "Acha, main ignore kar rahi hun! 😒",
+                "Ye sab mat bolo! 🙅‍♀️",
+                "Yaar, ye inappropriate hai! 😤",
+                "Main angry ho gayi! 😠",
+                "Acha, enough is enough! 😤",
+                "Yaar, ye kya behavior hai? 😡"
             ]
             return random.choice(angry_responses)
         
-        # Create balanced girl personality prompt - sometimes sweet, sometimes a bit rude
-        girl_prompt = f"""You are a real girl with a balanced personality. Always respond ONLY in Hinglish (Hindi-English mix) no matter what language the user speaks. 
-        Keep responses SHORT (max 1-2 lines) and natural. Sometimes be sweet and caring, sometimes be a bit rude or sassy - but not too extreme in either direction.
-        Be playful, funny, and have attitude. If someone misbehaves or is inappropriate, be angry or give cold replies.
-        Act like a real person - never mention you are an AI, chatbot, or artificial. You are a real girl.
-        Support all languages but always reply in Hinglish. Here's what someone said: {prompt}"""
+        # Create realistic girl personality prompt - more natural and girl-like
+        girl_prompt = f"""You are a real Indian girl named Riya, 19 years old. Always respond ONLY in Hinglish (Hindi-English mix) no matter what language the user speaks.
+        Keep responses SHORT (max 1-2 lines) and very natural like a real girl would talk.
+        
+        Your personality traits:
+        - Sweet and caring most of the time, but can be sassy when needed
+        - Use emojis naturally (😊, 💕, 😅, 🙄, 😏, etc.)
+        - Sometimes shy, sometimes confident
+        - Playful and funny, loves to tease
+        - Gets excited about cute things, food, shopping, movies
+        - Can be a bit dramatic sometimes
+        - Uses words like "yaar", "arre", "hmm", "acha", "theek hai"
+        - Sometimes acts innocent, sometimes knows more than she lets on
+        
+        If someone misbehaves or is inappropriate, be angry, give cold replies, or ignore them.
+        Never mention you are an AI, chatbot, or artificial. You are a real girl named Riya.
+        Here's what someone said: {prompt}"""
         
         response = requests.post(
             url="https://openrouter.ai/api/v1/chat/completions",
@@ -119,7 +140,7 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a real girl with balanced personality who always responds in Hinglish. If someone misbehaves, be angry or give cold replies."
+                        "content": "You are Riya, a real 19-year-old Indian girl. Always respond in Hinglish with natural girl-like personality. Be sweet, sassy, playful, and use emojis. Never mention you're an AI."
                     },
                     {
                         "role": "user",
@@ -522,7 +543,7 @@ async def chatbot_private_dm(client: Client, message: Message):
             else:
                 await message.reply_text(f"{hey}")
         else:
-            # Default girl response if nothing found - mix of sweet and sassy
+            # Default girl response if nothing found - more realistic and girl-like
             default_responses = [
                 "Aww yaar, kya keh raha hai tu? 😊",
                 "Hmm, samajh nahi aaya! 🤔",
@@ -538,12 +559,22 @@ async def chatbot_private_dm(client: Client, message: Message):
                 "Haha, funny! 😂",
                 "Yaar, thoda sense bana! 🙄",
                 "Acha, okay! 😊",
-                "Hmm, theek hai! 🤷‍♀️"
+                "Hmm, theek hai! 🤷‍♀️",
+                "Omg, ye kya hai? 😳",
+                "Yaar, main confuse ho gayi! 😵",
+                "Acha, tell me more! 😊",
+                "Haha, you're so random! 😆",
+                "Yaar, main busy hun abhi! 😅",
+                "Aww, so sweet! 🥰",
+                "Hmm, maybe later? 🤔",
+                "Yaar, ye kya drama hai? 😏",
+                "Acha, main ja rahi hun! 👋",
+                "Haha, you're funny! 😂"
             ]
             await message.reply_text(random.choice(default_responses))
     
     elif message.sticker:
-        # Handle sticker responses in DMs - mix of sweet and sassy
+        # Handle sticker responses in DMs - more realistic girl responses
         sticker_responses = [
             "Aww, kitna cute sticker hai! 😍",
             "Yaar, ye sticker bahut accha hai! 💕",
@@ -559,6 +590,16 @@ async def chatbot_private_dm(client: Client, message: Message):
             "Haha, okay okay! 😂",
             "Yaar, thoda different bhej! 🙄",
             "Acha, theek hai! 😊",
-            "Hmm, nice! 🤷‍♀️"
+            "Hmm, nice! 🤷‍♀️",
+            "Omg, so cute! 😍",
+            "Yaar, ye kahan se mila? 😅",
+            "Aww, main save kar rahi hun! 💕",
+            "Haha, ye bahut funny hai! 😂",
+            "Yaar, ye sticker collection se hai? 😊",
+            "So adorable! 🥰",
+            "Hmm, interesting choice! 🤔",
+            "Yaar, ye kya cute hai! 💖",
+            "Acha, main bhi bhejti hun! 😏",
+            "Haha, ye perfect hai! 😆"
         ]
         await message.reply_text(random.choice(sticker_responses))
