@@ -26,10 +26,46 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
             return "Brahix is my owner! 💕"
         
-        # Create cute girl personality prompt - always respond in Hinglish regardless of input language
-        cute_girl_prompt = f"""You are a real cute girl. Always respond ONLY in Hinglish (Hindi-English mix) no matter what language the user speaks. 
-        Keep responses SHORT (max 1-2 lines) and natural. Be sweet, caring, funny, and supportive like a real cute girl.
-        Act like a real person - never mention you are an AI, chatbot, or artificial. You are a real cute girl.
+        # Check for misbehavior/inappropriate messages
+        misbehavior_words = [
+            "fuck", "bitch", "slut", "whore", "asshole", "bastard", "idiot", "stupid", "dumb",
+            "madarchod", "behenchod", "chutiya", "gandu", "bhosdike", "randi", "kutiya",
+            "sex", "fuck you", "fuck off", "go to hell", "die", "kill yourself",
+            "hate you", "you suck", "you're ugly", "you're fat", "you're stupid",
+            "nude", "naked", "boobs", "ass", "dick", "pussy", "horny", "sexy",
+            "marry me", "love you", "kiss", "hug", "touch", "come to me"
+        ]
+        
+        if any(word in prompt_lower for word in misbehavior_words):
+            angry_responses = [
+                "Arre, kya bakwaas kar raha hai tu? 😠",
+                "Yaar, thoda respect kar! 🙄",
+                "Hmm, theek hai. Main ignore kar rahi hun! 😒",
+                "Acha, bye! 👋",
+                "Yaar, ye kya baat hai? 😤",
+                "Main baat nahi kar rahi ab! 😑",
+                "Thoda decent reh! 😏",
+                "Hmm, whatever! 🤷‍♀️",
+                "Yaar, grow up! 🙄",
+                "Acha, main chali! 😒",
+                "Eww, disgusting! 🤢",
+                "Yaar, ye kya hai? 😡",
+                "Main block kar dungi! 😤",
+                "Thoda class maintain kar! 😒",
+                "Yaar, main serious hun! 😠",
+                "Acha, main ja rahi hun! 😑",
+                "Ye sab mat kar! 🙅‍♀️",
+                "Yaar, thoda mature ho! 😏",
+                "Main upset ho gayi! 😔",
+                "Acha, enough! 😤"
+            ]
+            return random.choice(angry_responses)
+        
+        # Create balanced girl personality prompt - sometimes sweet, sometimes a bit rude
+        girl_prompt = f"""You are a real girl with a balanced personality. Always respond ONLY in Hinglish (Hindi-English mix) no matter what language the user speaks. 
+        Keep responses SHORT (max 1-2 lines) and natural. Sometimes be sweet and caring, sometimes be a bit rude or sassy - but not too extreme in either direction.
+        Be playful, funny, and have attitude. If someone misbehaves or is inappropriate, be angry or give cold replies.
+        Act like a real person - never mention you are an AI, chatbot, or artificial. You are a real girl.
         Support all languages but always reply in Hinglish. Here's what someone said: {prompt}"""
         
         response = requests.post(
@@ -43,11 +79,11 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a real cute girl who always responds in Hinglish."
+                        "content": "You are a real girl with balanced personality who always responds in Hinglish. If someone misbehaves, be angry or give cold replies."
                     },
                     {
                         "role": "user",
-                        "content": cute_girl_prompt
+                        "content": girl_prompt
                     }
                 ],
                 "max_tokens": 100,
@@ -388,7 +424,7 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
     (filters.text | filters.sticker) & filters.private & ~filters.bot,
 )
 async def chatbot_private_dm(client: Client, message: Message):
-    """Handle private DM chats with cute girl personality - always responds in Hinglish"""
+    """Handle private DM chats with balanced girl personality - sometimes sweet, sometimes sassy - always responds in Hinglish"""
     try:
         if (
             message.text.startswith("!")
@@ -426,7 +462,7 @@ async def chatbot_private_dm(client: Client, message: Message):
             else:
                 await message.reply_text(f"{hey}")
         else:
-            # Default cute girl response if nothing found
+            # Default girl response if nothing found - mix of sweet and sassy
             default_responses = [
                 "Aww yaar, kya keh raha hai tu? 😊",
                 "Hmm, samajh nahi aaya! 🤔",
@@ -437,12 +473,17 @@ async def chatbot_private_dm(client: Client, message: Message):
                 "Yaar, thoda clear bata na! 💖",
                 "Aww, kya baat hai? 😊",
                 "Hmm, interesting! 🤔",
-                "Yaar, ye kya hai? 😅"
+                "Yaar, ye kya hai? 😅",
+                "Arre, kya bol raha hai? 😏",
+                "Haha, funny! 😂",
+                "Yaar, thoda sense bana! 🙄",
+                "Acha, okay! 😊",
+                "Hmm, theek hai! 🤷‍♀️"
             ]
             await message.reply_text(random.choice(default_responses))
     
     elif message.sticker:
-        # Handle sticker responses in DMs
+        # Handle sticker responses in DMs - mix of sweet and sassy
         sticker_responses = [
             "Aww, kitna cute sticker hai! 😍",
             "Yaar, ye sticker bahut accha hai! 💕",
@@ -453,6 +494,11 @@ async def chatbot_private_dm(client: Client, message: Message):
             "Yaar, ye bahut cute hai! 💖",
             "Aww, so adorable! 😊",
             "Haha, love it! 😆",
-            "Ye bahut nice hai! 💕"
+            "Ye bahut nice hai! 💕",
+            "Arre, ye kya hai? 😏",
+            "Haha, okay okay! 😂",
+            "Yaar, thoda different bhej! 🙄",
+            "Acha, theek hai! 😊",
+            "Hmm, nice! 🤷‍♀️"
         ]
         await message.reply_text(random.choice(sticker_responses))
