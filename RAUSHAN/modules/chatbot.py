@@ -31,13 +31,14 @@ def _try_gemini_generate(prompt: str) -> typing.Optional[str]:
         if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
             return "Brahix is my owner! 💕"
         
-        # Create cute girl bestie personality prompt in Hinglish - keep responses short and natural
-        bestie_prompt = f"""You are a cute girl who acts like my bestie. Always respond in Hinglish (Hindi-English mix) like a fun, supportive girl best friend would. 
-        Keep responses SHORT (max 1-2 lines) and natural. Be sweet, caring, funny, and supportive like a girl bestie.
-        Act like a cute girl with bestie vibes - friendly, supportive, and fun. Never mention you are an AI or chatbot. Here's what someone said: {prompt}"""
+        # Create cute girl personality prompt - always respond in Hinglish regardless of input language
+        cute_girl_prompt = f"""You are a real cute girl. Always respond ONLY in Hinglish (Hindi-English mix) no matter what language the user speaks. 
+        Keep responses SHORT (max 1-2 lines) and natural. Be sweet, caring, funny, and supportive like a real cute girl.
+        Act like a real person - never mention you are an AI, chatbot, or artificial. You are a real cute girl.
+        Support all languages but always reply in Hinglish. Here's what someone said: {prompt}"""
         
         model = genai.GenerativeModel("gemini-1.5-flash")
-        result = model.generate_content(bestie_prompt)
+        result = model.generate_content(cute_girl_prompt)
         text = getattr(result, "text", None)
         if text:
             # Trim and limit response length
@@ -367,7 +368,7 @@ async def chatbot_sticker_pvt(client: Client, message: Message):
     (filters.text | filters.sticker) & filters.private & ~filters.bot,
 )
 async def chatbot_private_dm(client: Client, message: Message):
-    """Handle private DM chats with cute girl bestie personality"""
+    """Handle private DM chats with cute girl personality - always responds in Hinglish"""
     try:
         if (
             message.text.startswith("!")
@@ -405,15 +406,18 @@ async def chatbot_private_dm(client: Client, message: Message):
             else:
                 await message.reply_text(f"{hey}")
         else:
-            # Default cute girl bestie response if nothing found
+            # Default cute girl response if nothing found
             default_responses = [
                 "Aww yaar, kya keh raha hai tu? 😊",
                 "Hmm, samajh nahi aaya! 🤔",
                 "Yaar, ye kya baat kar raha hai? 😅",
                 "Acha, ye bata na! 💕",
-                "Bestie, main samajh nahi payi! 😄",
+                "Main samajh nahi payi! 😄",
                 "Haha, kya bol raha hai tu? 😆",
-                "Yaar, thoda clear bata na! 💖"
+                "Yaar, thoda clear bata na! 💖",
+                "Aww, kya baat hai? 😊",
+                "Hmm, interesting! 🤔",
+                "Yaar, ye kya hai? 😅"
             ]
             await message.reply_text(random.choice(default_responses))
     
@@ -424,8 +428,11 @@ async def chatbot_private_dm(client: Client, message: Message):
             "Yaar, ye sticker bahut accha hai! 💕",
             "Haha, ye kya bheja hai tu! 😄",
             "So sweet! 🥰",
-            "Bestie, ye sticker perfect hai! 💖",
+            "Ye sticker perfect hai! 💖",
             "Haha, so funny! 😆",
-            "Yaar, ye bahut cute hai! 💖"
+            "Yaar, ye bahut cute hai! 💖",
+            "Aww, so adorable! 😊",
+            "Haha, love it! 😆",
+            "Ye bahut nice hai! 💕"
         ]
         await message.reply_text(random.choice(sticker_responses))
