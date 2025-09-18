@@ -13,7 +13,7 @@ SUPPORT_GRP = getenv("SUPPORT_GRP", "brahix_support")
 UPDATE_CHNL = getenv("UPDATE_CHNL", "about_brahix")
 OWNER_USERNAME = getenv("OWNER_USERNAME", "Brahix")
 GEMINI_API_KEY = getenv("GEMINI_API_KEY", "AIzaSyDFM-OzXtqz7bk9GEd9FfOiC0IAPYvo4h8")
-OPENAI_API_KEY = getenv("OPENAI_API_KEY", "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") 
+OPENAI_API_KEY = getenv("OPENAI_API_KEY", "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") 
 
 # Random Start Images
 IMG = [
