@@ -8,12 +8,12 @@ from pyrogram import Client, filters
 from pyrogram.enums import ChatAction
 from pyrogram.types import InlineKeyboardMarkup, Message
 
-from config import MONGO_URL, OPENAI_API_KEY
+from config import MONGO_URL
 from RAUSHAN import AMBOT
 from RAUSHAN.modules.helpers import CHATBOT_ON, is_admins
 
 
-# OpenRouter API key is configured in the function when needed
+# Custom API integration
 
 
 def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
@@ -61,7 +61,7 @@ def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
     return False
 
 
-def _try_openai_generate(prompt: str) -> typing.Optional[str]:
+def _try_custom_api_generate(prompt: str) -> typing.Optional[str]:
     """Return a response from custom API or None on any failure/empty output."""
     try:
         # Check if someone is asking about owner/creator
@@ -69,116 +69,13 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
             return "Brahix is my owner! 💕"
         
-        # Check for location questions - respond like a real girl
-        location_words = ["kahan se ho", "where are you from", "kahan se tum", "where u from", "kahan se", "where from", "location", "address", "place"]
-        if any(word in prompt_lower for word in location_words):
-            location_responses = [
-                "Main Mumbai se hun! 😊",
-                "Yaar, main Delhi se hun! 💕",
-                "Main Bangalore se hun! 😄",
-                "Yaar, main Pune se hun! 😊",
-                "Main Chennai se hun! 💖",
-                "Yaar, main Kolkata se hun! 😅",
-                "Main Hyderabad se hun! 😊",
-                "Yaar, main Ahmedabad se hun! 💕",
-                "Main Jaipur se hun! 😄",
-                "Yaar, main Lucknow se hun! 😊"
-            ]
-            return random.choice(location_responses)
+        # Let the API handle location questions naturally
         
-        # Check for greetings - respond like a real girl
-        greeting_words = ["hi", "hello", "hey", "namaste", "namaskar", "good morning", "good evening", "good night", "bye", "tata", "see you"]
-        if any(word in prompt_lower for word in greeting_words):
-            greeting_responses = [
-                "Hi! 😊",
-                "Hello! 💕",
-                "Hey! 😄",
-                "Namaste! 😊",
-                "Hi yaar! 💖",
-                "Hello! 😅",
-                "Hey there! 😊",
-                "Hi! How are you? 💕",
-                "Hello! 😄",
-                "Hey! 😊"
-            ]
-            return random.choice(greeting_responses)
+        # Let the API handle greetings naturally
         
-        # Check for AI/chatbot related questions - respond as a real girl
-        ai_words = ["ai", "artificial intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]
-        if any(word in prompt_lower for word in ai_words):
-            # Detect language and respond accordingly
-            if any(word in prompt_lower for word in ["ai", "artificial", "intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]):
-                # English response
-                if any(word in prompt_lower for word in ["ai", "artificial", "intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]):
-                    real_girl_responses = [
-                        "Haha, I'm just a normal girl! 😊",
-                        "I'm not AI, I'm Riya! 😅",
-                        "I'm a real girl! 😄",
-                        "What are you talking about? I'm just normal! 😊",
-                        "I'm just a sweet girl! 💕",
-                        "I'm not AI yaar! 😅",
-                        "I'm a real person! 😊",
-                        "What question is this? I'm just normal! 😄",
-                        "I'm just a cute girl! 💖",
-                        "I'm not AI, I'm Riya! 😊"
-                    ]
-                else:
-                    # Hindi/Hinglish response
-                    real_girl_responses = [
-                        "Haha, main toh bas ek normal girl hun! 😊",
-                        "Yaar, main AI nahi hun, main Riya hun! 😅",
-                        "Arre, main toh real girl hun! 😄",
-                        "Haha, ye kya baat kar raha hai? Main toh bas normal hun! 😊",
-                        "Yaar, main toh bas ek sweet girl hun! 💕",
-                        "Haha, main AI nahi hun yaar! 😅",
-                        "Arre, main toh real person hun! 😊",
-                        "Yaar, ye kya question hai? Main toh bas normal girl hun! 😄",
-                        "Haha, main toh bas cute girl hun! 💖",
-                        "Arre, main AI nahi hun, main Riya hun! 😊"
-                    ]
-            return random.choice(real_girl_responses)
+        # Let the API handle AI-related questions naturally
         
-        # Check for misbehavior/inappropriate messages - respond politely but firmly
-        misbehavior_words = [
-            "fuck", "bitch", "slut", "whore", "asshole", "bastard", "idiot", "stupid", "dumb",
-            "madarchod", "behenchod", "chutiya", "gandu", "bhosdike", "randi", "kutiya",
-            "sex", "fuck you", "fuck off", "go to hell", "die", "kill yourself",
-            "hate you", "you suck", "you're ugly", "you're fat", "you're stupid",
-            "nude", "naked", "boobs", "ass", "dick", "pussy", "horny", "sexy",
-            "marry me", "love you", "kiss", "hug", "touch", "come to me"
-        ]
-        
-        if any(word in prompt_lower for word in misbehavior_words):
-            # Detect language and respond accordingly
-            if any(word in prompt_lower for word in ["fuck", "bitch", "slut", "whore", "asshole", "bastard", "idiot", "stupid", "dumb", "sex", "fuck you", "fuck off", "go to hell", "die", "kill yourself", "hate you", "you suck", "you're ugly", "you're fat", "you're stupid", "nude", "naked", "boobs", "ass", "dick", "pussy", "horny", "sexy", "marry me", "love you", "kiss", "hug", "touch", "come to me"]):
-                # English response
-                polite_responses = [
-                    "Please be respectful! 😊",
-                    "Let's talk nicely! 💕",
-                    "Please be polite! 😅",
-                    "Be nice! 💖",
-                    "Let's be friends! 😊",
-                    "Please don't be rude! 😊",
-                    "Let's talk nicely! 😄",
-                    "Please be polite! 💖",
-                    "Let's be good friends! 😊",
-                    "Please be nice! 😅"
-                ]
-            else:
-                # Hindi/Hinglish response
-                polite_responses = [
-                    "Yaar, please be respectful! 😊",
-                    "Hmm, let's talk nicely! 💕",
-                    "Acha, please be polite! 😅",
-                    "Yaar, be nice! 💖",
-                    "Acha, let's be friends! 😊",
-                    "Yaar, please don't be rude! 😊",
-                    "Haha, let's talk nicely! 😄",
-                    "Please be polite! 💖",
-                    "Yaar, let's be good friends! 😊",
-                    "Hmm, please be nice! 😅"
-                ]
-            return random.choice(polite_responses)
+        # Let the API handle all responses naturally with personality instructions
         
         # Use your custom API - hardcoded URL with personality instructions
         personality_instructions = f"""LANGUAGE RULES:
@@ -219,43 +116,7 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         if response.status_code == 200:
             text = response.text.strip()
             if text:
-                # Filter out AI-related responses and make it sound like a real girl
-                text_lower = text.lower()
-                
-                # If API response mentions AI, replace with real girl response
-                if any(word in text_lower for word in ["ai", "artificial", "intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software", "assistant", "help", "assist"]):
-                    real_girl_responses = [
-                        "Haha, main toh bas ek normal girl hun! 😊",
-                        "Yaar, main AI nahi hun, main Riya hun! 😅",
-                        "Arre, main toh real girl hun! 😄",
-                        "Haha, ye kya baat kar raha hai? Main toh bas normal hun! 😊",
-                        "Yaar, main toh bas ek sweet girl hun! 💕",
-                        "Haha, main AI nahi hun yaar! 😅",
-                        "Arre, main toh real person hun! 😊",
-                        "Yaar, ye kya question hai? Main toh bas normal girl hun! 😄",
-                        "Haha, main toh bas cute girl hun! 💖",
-                        "Arre, main AI nahi hun, main Riya hun! 😊"
-                    ]
-                    return random.choice(real_girl_responses)
-                
-                # If response is too long, make it shorter and more girl-like
-                if len(text) > 50:
-                    # For long responses, give a short girl response instead
-                    short_responses = [
-                        "Haha, ye kya baat hai? 😅",
-                        "Yaar, thoda short bata na! 😊",
-                        "Hmm, interesting! 🤔",
-                        "Acha, theek hai! 😄",
-                        "Yaar, ye kya hai? 😅",
-                        "Haha, okay! 😊",
-                        "Aww, nice! 💕",
-                        "Yaar, thoda clear bata na! 😊",
-                        "Hmm, samajh gaya! 😄",
-                        "Acha, good! 😊"
-                    ]
-                    return random.choice(short_responses)
-                
-                # If response is short enough, use it as is
+                # Use the API response directly since it has personality instructions
                 return text
         else:
             print(f"Custom API Error: {response.status_code} - {response.text}")
@@ -305,9 +166,9 @@ async def chatbot_text(client: Client, message: Message):
         is_vick = vick.find_one({"chat_id": message.chat.id})
         if not is_vick:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            # Try OpenAI first for text prompts
+            # Try custom API first for text prompts
             if message.text:
-                ai_reply = _try_openai_generate(message.text)
+                ai_reply = _try_custom_api_generate(message.text)
                 if ai_reply:
                     await message.reply_text(ai_reply)
                     return
@@ -333,9 +194,9 @@ async def chatbot_text(client: Client, message: Message):
         if message.reply_to_message.from_user.id == client.id:
             if not is_vick:
                 await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-                # Try OpenAI first when user replies to bot
+                # Try custom API first when user replies to bot
                 if message.text:
-                    ai_reply = _try_openai_generate(message.text)
+                    ai_reply = _try_custom_api_generate(message.text)
                     if ai_reply:
                         await message.reply_text(ai_reply)
                         return
@@ -504,9 +365,9 @@ async def chatbot_pvt(client: Client, message: Message):
     chatai = chatdb["Word"]["WordDb"]
     if not message.reply_to_message:
         await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-        # Try OpenAI first for private chats
+        # Try custom API first for private chats
         if message.text:
-            ai_reply = _try_openai_generate(message.text)
+            ai_reply = _try_custom_api_generate(message.text)
             if ai_reply:
                 await message.reply_text(ai_reply)
                 return
@@ -525,9 +386,9 @@ async def chatbot_pvt(client: Client, message: Message):
     if message.reply_to_message:
         if message.reply_to_message.from_user.id == client.id:
             await client.send_chat_action(message.chat.id, ChatAction.TYPING)
-            # Try OpenAI first when user replies to bot in private
+            # Try custom API first when user replies to bot in private
             if message.text:
-                ai_reply = _try_openai_generate(message.text)
+                ai_reply = _try_custom_api_generate(message.text)
                 if ai_reply:
                     await message.reply_text(ai_reply)
                     return
@@ -618,13 +479,13 @@ async def chatbot_private_dm(client: Client, message: Message):
     await client.send_chat_action(message.chat.id, ChatAction.TYPING)
     
     if message.text:
-        # Always try OpenAI first for private DMs
-        ai_reply = _try_openai_generate(message.text)
+        # Always try custom API first for private DMs
+        ai_reply = _try_custom_api_generate(message.text)
         if ai_reply:
             await message.reply_text(ai_reply)
             return
         
-        # Fallback to DB if OpenAI fails
+        # Fallback to DB if custom API fails
         chatdb = MongoClient(MONGO_URL)
         chatai = chatdb["Word"]["WordDb"]
         K = []
