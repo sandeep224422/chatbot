@@ -69,6 +69,40 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
             return "Brahix is my owner! 💕"
         
+        # Check for location questions - respond like a real girl
+        location_words = ["kahan se ho", "where are you from", "kahan se tum", "where u from", "kahan se", "where from", "location", "address", "place"]
+        if any(word in prompt_lower for word in location_words):
+            location_responses = [
+                "Main Mumbai se hun! 😊",
+                "Yaar, main Delhi se hun! 💕",
+                "Main Bangalore se hun! 😄",
+                "Yaar, main Pune se hun! 😊",
+                "Main Chennai se hun! 💖",
+                "Yaar, main Kolkata se hun! 😅",
+                "Main Hyderabad se hun! 😊",
+                "Yaar, main Ahmedabad se hun! 💕",
+                "Main Jaipur se hun! 😄",
+                "Yaar, main Lucknow se hun! 😊"
+            ]
+            return random.choice(location_responses)
+        
+        # Check for greetings - respond like a real girl
+        greeting_words = ["hi", "hello", "hey", "namaste", "namaskar", "good morning", "good evening", "good night", "bye", "tata", "see you"]
+        if any(word in prompt_lower for word in greeting_words):
+            greeting_responses = [
+                "Hi! 😊",
+                "Hello! 💕",
+                "Hey! 😄",
+                "Namaste! 😊",
+                "Hi yaar! 💖",
+                "Hello! 😅",
+                "Hey there! 😊",
+                "Hi! How are you? 💕",
+                "Hello! 😄",
+                "Hey! 😊"
+            ]
+            return random.choice(greeting_responses)
+        
         # Check for AI/chatbot related questions - respond as a real girl
         ai_words = ["ai", "artificial intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]
         if any(word in prompt_lower for word in ai_words):
@@ -156,9 +190,43 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         if response.status_code == 200:
             text = response.text.strip()
             if text:
-                # If response is too long, truncate it
-                if len(text) > 200:
-                    text = text[:200] + "..."
+                # Filter out AI-related responses and make it sound like a real girl
+                text_lower = text.lower()
+                
+                # If API response mentions AI, replace with real girl response
+                if any(word in text_lower for word in ["ai", "artificial", "intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software", "assistant", "help", "assist"]):
+                    real_girl_responses = [
+                        "Haha, main toh bas ek normal girl hun! 😊",
+                        "Yaar, main AI nahi hun, main Riya hun! 😅",
+                        "Arre, main toh real girl hun! 😄",
+                        "Haha, ye kya baat kar raha hai? Main toh bas normal hun! 😊",
+                        "Yaar, main toh bas ek sweet girl hun! 💕",
+                        "Haha, main AI nahi hun yaar! 😅",
+                        "Arre, main toh real person hun! 😊",
+                        "Yaar, ye kya question hai? Main toh bas normal girl hun! 😄",
+                        "Haha, main toh bas cute girl hun! 💖",
+                        "Arre, main AI nahi hun, main Riya hun! 😊"
+                    ]
+                    return random.choice(real_girl_responses)
+                
+                # If response is too long, make it shorter and more girl-like
+                if len(text) > 50:
+                    # For long responses, give a short girl response instead
+                    short_responses = [
+                        "Haha, ye kya baat hai? 😅",
+                        "Yaar, thoda short bata na! 😊",
+                        "Hmm, interesting! 🤔",
+                        "Acha, theek hai! 😄",
+                        "Yaar, ye kya hai? 😅",
+                        "Haha, okay! 😊",
+                        "Aww, nice! 💕",
+                        "Yaar, thoda clear bata na! 😊",
+                        "Hmm, samajh gaya! 😄",
+                        "Acha, good! 😊"
+                    ]
+                    return random.choice(short_responses)
+                
+                # If response is short enough, use it as is
                 return text
         else:
             print(f"Custom API Error: {response.status_code} - {response.text}")
