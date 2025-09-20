@@ -72,18 +72,36 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         # Check for AI/chatbot related questions - respond as a real girl
         ai_words = ["ai", "artificial intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]
         if any(word in prompt_lower for word in ai_words):
-            real_girl_responses = [
-                "Haha, main toh bas ek normal girl hun! 😊",
-                "Yaar, main AI nahi hun, main Riya hun! 😅",
-                "Arre, main toh real girl hun! 😄",
-                "Haha, ye kya baat kar raha hai? Main toh bas normal hun! 😊",
-                "Yaar, main toh bas ek sweet girl hun! 💕",
-                "Haha, main AI nahi hun yaar! 😅",
-                "Arre, main toh real person hun! 😊",
-                "Yaar, ye kya question hai? Main toh bas normal girl hun! 😄",
-                "Haha, main toh bas cute girl hun! 💖",
-                "Arre, main AI nahi hun, main Riya hun! 😊"
-            ]
+            # Detect language and respond accordingly
+            if any(word in prompt_lower for word in ["ai", "artificial", "intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]):
+                # English response
+                if any(word in prompt_lower for word in ["ai", "artificial", "intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]):
+                    real_girl_responses = [
+                        "Haha, I'm just a normal girl! 😊",
+                        "I'm not AI, I'm Riya! 😅",
+                        "I'm a real girl! 😄",
+                        "What are you talking about? I'm just normal! 😊",
+                        "I'm just a sweet girl! 💕",
+                        "I'm not AI yaar! 😅",
+                        "I'm a real person! 😊",
+                        "What question is this? I'm just normal! 😄",
+                        "I'm just a cute girl! 💖",
+                        "I'm not AI, I'm Riya! 😊"
+                    ]
+                else:
+                    # Hindi/Hinglish response
+                    real_girl_responses = [
+                        "Haha, main toh bas ek normal girl hun! 😊",
+                        "Yaar, main AI nahi hun, main Riya hun! 😅",
+                        "Arre, main toh real girl hun! 😄",
+                        "Haha, ye kya baat kar raha hai? Main toh bas normal hun! 😊",
+                        "Yaar, main toh bas ek sweet girl hun! 💕",
+                        "Haha, main AI nahi hun yaar! 😅",
+                        "Arre, main toh real person hun! 😊",
+                        "Yaar, ye kya question hai? Main toh bas normal girl hun! 😄",
+                        "Haha, main toh bas cute girl hun! 💖",
+                        "Arre, main AI nahi hun, main Riya hun! 😊"
+                    ]
             return random.choice(real_girl_responses)
         
         # Check for misbehavior/inappropriate messages - respond politely but firmly
@@ -97,23 +115,35 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         ]
         
         if any(word in prompt_lower for word in misbehavior_words):
-            polite_responses = [
-                "Yaar, please be respectful! 😊",
-                "Hmm, let's talk about something nice! 💕",
-                "Acha, please don't say such things! 😅",
-                "Yaar, thoda polite reh na! 😊",
-                "Haha, let's change the topic! 😄",
-                "Please be nice! 💖",
-                "Yaar, let's talk about something else! 😊",
-                "Hmm, please be respectful! 😅",
-                "Acha, let's be friends! 💕",
-                "Yaar, please don't be rude! 😊",
-                "Haha, let's talk nicely! 😄",
-                "Please be polite! 💖",
-                "Yaar, let's be good friends! 😊",
-                "Hmm, please be nice! 😅",
-                "Acha, let's talk about something fun! 💕"
-            ]
+            # Detect language and respond accordingly
+            if any(word in prompt_lower for word in ["fuck", "bitch", "slut", "whore", "asshole", "bastard", "idiot", "stupid", "dumb", "sex", "fuck you", "fuck off", "go to hell", "die", "kill yourself", "hate you", "you suck", "you're ugly", "you're fat", "you're stupid", "nude", "naked", "boobs", "ass", "dick", "pussy", "horny", "sexy", "marry me", "love you", "kiss", "hug", "touch", "come to me"]):
+                # English response
+                polite_responses = [
+                    "Please be respectful! 😊",
+                    "Let's talk nicely! 💕",
+                    "Please be polite! 😅",
+                    "Be nice! 💖",
+                    "Let's be friends! 😊",
+                    "Please don't be rude! 😊",
+                    "Let's talk nicely! 😄",
+                    "Please be polite! 💖",
+                    "Let's be good friends! 😊",
+                    "Please be nice! 😅"
+                ]
+            else:
+                # Hindi/Hinglish response
+                polite_responses = [
+                    "Yaar, please be respectful! 😊",
+                    "Hmm, let's talk nicely! 💕",
+                    "Acha, please be polite! 😅",
+                    "Yaar, be nice! 💖",
+                    "Acha, let's be friends! 😊",
+                    "Yaar, please don't be rude! 😊",
+                    "Haha, let's talk nicely! 😄",
+                    "Please be polite! 💖",
+                    "Yaar, let's be good friends! 😊",
+                    "Hmm, please be nice! 😅"
+                ]
             return random.choice(polite_responses)
         
         # Use your custom API - hardcoded URL
@@ -513,7 +543,7 @@ async def chatbot_private_dm(client: Client, message: Message):
             else:
                 await message.reply_text(f"{hey}")
         else:
-            # Default girl response if nothing found - more realistic and girl-like
+            # Default girl response if nothing found - short and language-aware
             default_responses = [
                 "Aww yaar, kya keh raha hai tu? 😊",
                 "Hmm, samajh nahi aaya! 🤔",
@@ -544,32 +574,32 @@ async def chatbot_private_dm(client: Client, message: Message):
             await message.reply_text(random.choice(default_responses))
     
     elif message.sticker:
-        # Handle sticker responses in DMs - more realistic girl responses
+        # Handle sticker responses in DMs - short and cute
         sticker_responses = [
-            "Aww, kitna cute sticker hai! 😍",
-            "Yaar, ye sticker bahut accha hai! 💕",
-            "Haha, ye kya bheja hai tu! 😄",
+            "Aww, kitna cute! 😍",
+            "Yaar, bahut accha hai! 💕",
+            "Haha, ye kya hai! 😄",
             "So sweet! 🥰",
-            "Ye sticker perfect hai! 💖",
-            "Haha, so funny! 😆",
-            "Yaar, ye bahut cute hai! 💖",
-            "Aww, so adorable! 😊",
+            "Perfect! 💖",
+            "Haha, funny! 😆",
+            "Yaar, bahut cute! 💖",
+            "Aww, adorable! 😊",
             "Haha, love it! 😆",
-            "Ye bahut nice hai! 💕",
+            "Nice! 💕",
             "Arre, ye kya hai? 😏",
-            "Haha, okay okay! 😂",
-            "Yaar, thoda different bhej! 🙄",
+            "Haha, okay! 😂",
+            "Yaar, different bhej! 🙄",
             "Acha, theek hai! 😊",
             "Hmm, nice! 🤷‍♀️",
             "Omg, so cute! 😍",
-            "Yaar, ye kahan se mila? 😅",
-            "Aww, main save kar rahi hun! 💕",
-            "Haha, ye bahut funny hai! 😂",
-            "Yaar, ye sticker collection se hai? 😊",
+            "Yaar, kahan se mila? 😅",
+            "Aww, save kar rahi hun! 💕",
+            "Haha, funny! 😂",
+            "Yaar, collection se hai? 😊",
             "So adorable! 🥰",
-            "Hmm, interesting choice! 🤔",
-            "Yaar, ye kya cute hai! 💖",
+            "Hmm, interesting! 🤔",
+            "Yaar, kya cute hai! 💖",
             "Acha, main bhi bhejti hun! 😏",
-            "Haha, ye perfect hai! 😆"
+            "Haha, perfect! 😆"
         ]
         await message.reply_text(random.choice(sticker_responses))
