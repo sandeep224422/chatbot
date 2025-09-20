@@ -62,16 +62,31 @@ def is_bot_mentioned_or_tagged(message: Message, client: Client) -> bool:
 
 
 def _try_openai_generate(prompt: str) -> typing.Optional[str]:
-    """Return an OpenRouter response text or None on any failure/empty output."""
-    if not OPENAI_API_KEY:
-        return None
+    """Return a response from custom API or None on any failure/empty output."""
     try:
         # Check if someone is asking about owner/creator
         prompt_lower = prompt.lower()
         if any(word in prompt_lower for word in ["owner", "creator", "who made you", "who created you", "kaun banaya", "kaun bana", "tumhara malik", "tumhara owner"]):
             return "Brahix is my owner! 💕"
         
-        # Check for misbehavior/inappropriate messages
+        # Check for AI/chatbot related questions - respond as a real girl
+        ai_words = ["ai", "artificial intelligence", "chatbot", "bot", "robot", "machine", "algorithm", "program", "code", "software"]
+        if any(word in prompt_lower for word in ai_words):
+            real_girl_responses = [
+                "Haha, main toh bas ek normal girl hun! 😊",
+                "Yaar, main AI nahi hun, main Riya hun! 😅",
+                "Arre, main toh real girl hun! 😄",
+                "Haha, ye kya baat kar raha hai? Main toh bas normal hun! 😊",
+                "Yaar, main toh bas ek sweet girl hun! 💕",
+                "Haha, main AI nahi hun yaar! 😅",
+                "Arre, main toh real person hun! 😊",
+                "Yaar, ye kya question hai? Main toh bas normal girl hun! 😄",
+                "Haha, main toh bas cute girl hun! 💖",
+                "Arre, main AI nahi hun, main Riya hun! 😊"
+            ]
+            return random.choice(real_girl_responses)
+        
+        # Check for misbehavior/inappropriate messages - respond politely but firmly
         misbehavior_words = [
             "fuck", "bitch", "slut", "whore", "asshole", "bastard", "idiot", "stupid", "dumb",
             "madarchod", "behenchod", "chutiya", "gandu", "bhosdike", "randi", "kutiya",
@@ -82,107 +97,44 @@ def _try_openai_generate(prompt: str) -> typing.Optional[str]:
         ]
         
         if any(word in prompt_lower for word in misbehavior_words):
-            angry_responses = [
-                "Arre, kya bakwaas kar raha hai tu? 😠",
-                "Yaar, thoda respect kar! 🙄",
-                "Hmm, theek hai. Main ignore kar rahi hun! 😒",
-                "Acha, bye! 👋",
-                "Yaar, ye kya baat hai? 😤",
-                "Main baat nahi kar rahi ab! 😑",
-                "Thoda decent reh! 😏",
-                "Hmm, whatever! 🤷‍♀️",
-                "Yaar, grow up! 🙄",
-                "Acha, main chali! 😒",
-                "Eww, disgusting! 🤢",
-                "Yaar, ye kya hai? 😡",
-                "Main block kar dungi! 😤",
-                "Thoda class maintain kar! 😒",
-                "Yaar, main serious hun! 😠",
-                "Acha, main ja rahi hun! 😑",
-                "Ye sab mat kar! 🙅‍♀️",
-                "Yaar, thoda mature ho! 😏",
-                "Main upset ho gayi! 😔",
-                "Acha, enough! 😤",
-                "Omg, ye kya hai? 😳",
-                "Yaar, main shocked hun! 😱",
-                "This is so wrong! 😡",
-                "Yaar, main disappointed hun! 😔",
-                "Acha, main ignore kar rahi hun! 😒",
-                "Ye sab mat bolo! 🙅‍♀️",
-                "Yaar, ye inappropriate hai! 😤",
-                "Main angry ho gayi! 😠",
-                "Acha, enough is enough! 😤",
-                "Yaar, ye kya behavior hai? 😡"
+            polite_responses = [
+                "Yaar, please be respectful! 😊",
+                "Hmm, let's talk about something nice! 💕",
+                "Acha, please don't say such things! 😅",
+                "Yaar, thoda polite reh na! 😊",
+                "Haha, let's change the topic! 😄",
+                "Please be nice! 💖",
+                "Yaar, let's talk about something else! 😊",
+                "Hmm, please be respectful! 😅",
+                "Acha, let's be friends! 💕",
+                "Yaar, please don't be rude! 😊",
+                "Haha, let's talk nicely! 😄",
+                "Please be polite! 💖",
+                "Yaar, let's be good friends! 😊",
+                "Hmm, please be nice! 😅",
+                "Acha, let's talk about something fun! 💕"
             ]
-            return random.choice(angry_responses)
+            return random.choice(polite_responses)
         
-        # Create realistic girl personality prompt - more natural and girl-like
-        girl_prompt = f"""You are a real Indian girl named Riya, 19 years old. 
-        
-        LANGUAGE RULES:
-        - Detect the language the user is speaking and respond in the SAME language
-        - If user writes in Japanese, respond in Japanese
-        - If user writes in Hindi, respond in Hindi
-        - If user writes in English, respond in English
-        - If user writes in Spanish, respond in Spanish
-        - If user writes in French, respond in French
-        - If user writes in German, respond in German
-        - If user writes in Chinese, respond in Chinese
-        - If user writes in Korean, respond in Korean
-        - If user writes in Arabic, respond in Arabic
-        - If user writes in mixed languages, respond in Hinglish (Hindi-English mix)
-        - Keep responses SHORT (max 1-2 lines) and very natural like a real girl would talk
-        
-        Your personality traits:
-        - Sweet and caring most of the time, but can be sassy when needed
-        - Use emojis naturally (😊, 💕, 😅, 🙄, 😏, etc.)
-        - Sometimes shy, sometimes confident
-        - Playful and funny, loves to tease
-        - Gets excited about cute things, food, shopping, movies
-        - Can be a bit dramatic sometimes
-        - Use appropriate expressions for each language (like "yaar" for Hindi, "ne" for Japanese, etc.)
-        - Sometimes acts innocent, sometimes knows more than she lets on
-        
-        If someone misbehaves or is inappropriate, be angry, give cold replies, or ignore them.
-        Never mention you are an AI, chatbot, or artificial. You are a real girl named Riya.
-        Here's what someone said: {prompt}"""
-        
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {OPENAI_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            data=json.dumps({
-                "model": "openai/gpt-3.5-turbo",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are Riya, a real 19-year-old Indian girl. Detect the user's language and respond in the SAME language they use. Be sweet, sassy, playful, and use emojis naturally. Never mention you're an AI."
-                    },
-                    {
-                        "role": "user",
-                        "content": girl_prompt
-                    }
-                ],
-                "max_tokens": 100,
-                "temperature": 0.7
-            })
+        # Use your custom API - hardcoded URL
+        response = requests.get(
+            "https://gpt-ltn7.onrender.com/",
+            params={"text": prompt},
+            timeout=10
         )
         
         if response.status_code == 200:
-            result = response.json()
-            text = result["choices"][0]["message"]["content"].strip()
+            text = response.text.strip()
             if text:
                 # If response is too long, truncate it
                 if len(text) > 200:
                     text = text[:200] + "..."
                 return text
         else:
-            print(f"OpenRouter API Error: {response.status_code} - {response.text}")
+            print(f"Custom API Error: {response.status_code} - {response.text}")
             return None
     except Exception as e:
-        print(f"OpenRouter API Error: {e}")  # Debug print
+        print(f"Custom API Error: {e}")  # Debug print
         return None
     return None
 
